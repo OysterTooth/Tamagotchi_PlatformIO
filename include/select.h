@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-extern const unsigned short select_img[396];  // 声明而不是定义
+extern const unsigned short select_img[650];  // 声明而不是定义
 
 #endif

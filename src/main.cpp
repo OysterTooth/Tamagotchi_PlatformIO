@@ -5,49 +5,51 @@
 #include <U8g2_for_TFT_eSPI.h>
 #include <Preferences.h>
 
-TFT_eSPI tft;
-U8g2_for_TFT_eSPI u8f;
-Preferences prefs;
+#define BUTTON_Right 47//右边按钮define
+#define BUTTON_Left 0 //左边按钮define
 
-// TJpg_Decoder 回调：把解码出来的块画到屏幕
-bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {
-  if (y >= tft.height()) return 0;          // 超出屏幕就丢弃
-  if (!bitmap) return 0;                    // 防御：防止空指针
-  tft.pushImage(x, y, w, h, bitmap);
-  return 1;
+
+/*int brightness_x = 29;  // 全局变量，存储亮度的 X 位置
+int brightness_y = 19;
+int sound_x = 33;       // 全局变量，存储音量的 X 位置
+int sound_y = 51;*/
+
+TFT_eSPI tft = TFT_eSPI();//显示图片用的
+U8g2_for_TFT_eSPI u8g2;  // 声明中文显示的对象
+Preferences preferences;  // NVS 存储实例
+extern TJpg_Decoder TJpgDec; // 使用外部定义的实例
+
+bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) {//显示图片用的，初始化设置
+    if (y >= tft.height()) return 0;//检测图片是不是太大了，感觉没什么用
+    tft.pushImage(x, y, w, h, bitmap);
+    return 1;
 }
 
 void setup() {
-  Serial.begin(115200);
-  delay(200);
+  Serial.begin(115200);//初始化，9600也行，不知道两个数有什么区别
+  tft.init();//这个也是
+  tft.setRotation(0);//也是
+  u8g2.begin(tft);//显示中文用的
+  tft.fillScreen(TFT_BLACK);//先显示个黑屏？
 
-  #ifdef TFT_BL
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH); // 若黑屏改 LOW
-  #endif
-
-  tft.init();
-  tft.setRotation(0);
-  tft.fillScreen(TFT_BLACK);
-
-  if (!SPIFFS.begin(true)) {
-    Serial.println("SPIFFS mount failed");
-    while (1) delay(1000);
+  if (!SPIFFS.begin(true)) { //检查按钮初始化有没有成功
+      Serial.println("SPIFFS 初始化失败");
+      return;
   }
-  Serial.println("SPIFFS mounted");
+  pinMode(BUTTON_Right, INPUT_PULLUP);  // 按钮输入（上沿）不知道为什么得在（ESP32 JPEG 解码库）的配置选项上面
+  pinMode(BUTTON_Left, INPUT_PULLUP);  // 按钮输入（上沿）不知道为什么得在（ESP32 JPEG 解码库）的配置选项上面
 
-  // 这俩通常建议打开（不一定是崩溃原因，但很常用）
-  tft.setSwapBytes(true);
-  TJpgDec.setSwapBytes(true);
+  //TJpg_Decoder（ESP32 JPEG 解码库）的配置选项
+  TJpgDec.setCallback(tft_output);//设定 解码回调，让 JPEG 画到屏幕
+  TJpgDec.setJpgScale(1);//100%显示jpg，如果2就是缩小1/2,4就是缩小1/4
+  TJpgDec.setSwapBytes(true);//修正 RGB 颜色顺序，这个和下一行的二选一开就行
+  //tft.setSwapBytes(true);
+    
+  TJpgDec.drawFsJpg(0, 0, "/background.jpg");
 
-  TJpgDec.setCallback(tft_output);
-
-  Serial.println("Drawing /background.jpg ...");
-  uint16_t rc = TJpgDec.drawFsJpg(0, 0, "/background.jpg");
-  Serial.printf("draw rc = %u\n", rc);
-
-  tft.drawString("JPG done", 10, 10, 2);
 }
+
+  //tft.drawString("JPG done", 10, 10, 2);
 
 void loop() {
   delay(1000);

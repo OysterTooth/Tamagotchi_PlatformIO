@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-extern const unsigned short Char1_F_Stand3[1656];  // 声明而不是定义
+extern uint16_t Char1_F_Stand3[1656];  // 声明而不是定义
 
 #endif

@@ -15,4 +15,4 @@
 #include "Garden_bg.h"
  
 const unsigned short Garden_bg[1656] = {
-}
+};

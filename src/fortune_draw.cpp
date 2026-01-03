@@ -3,7 +3,7 @@
 extern const char* fortunes[];
 extern const int fortuneCount;
 extern void drawSelect();  // 声明 drawSelect 函数
-extern const unsigned short select_img[650];
+//extern uint16_t select_img[650];
 
 
 

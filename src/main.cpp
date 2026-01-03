@@ -24,6 +24,7 @@
 #include "Char1_F_Stand3.h"
 #include "CharBg.h"
 #include "Out.h"
+#include "menu.h"
 
 #define LCD_BL   10 // 背光 GPIO
 
@@ -35,6 +36,8 @@
 
 TFT_eSPI tft = TFT_eSPI();//显示图片用的
 TFT_eSprite  spr = TFT_eSprite(&tft);//用于动画去闪，用 Sprite 先在 RAM 里合成，再一次推屏
+TFT_eSprite MenuSpr = TFT_eSprite(&tft);
+
 U8g2_for_TFT_eSPI u8g2;  // 声明中文显示的对象
 Preferences preferences;  // NVS 存储实例
 extern TJpg_Decoder TJpgDec; // 使用外部定义的实例
@@ -68,15 +71,26 @@ void drawTransparentImage(int16_t x, int16_t y, int16_t w, int16_t h, const uint
 }
 
 /////////////////////////////////  select & main menu  ////////////////////////////////////////////////////////////////////////////////////////////
+void initMenuSprite()
+{
+  MenuSpr.setColorDepth(16);//1 bit(黑白）,16bit(RGB565)(默认），24/32 bit(RGB888/ARGB8888)
+  MenuSpr.createSprite(128, 29);          // Menu尺寸
+  MenuSpr.setSwapBytes(true); //对调RB,要不颜色会乱
+}
 
 int mainSelect_x = 1;  // 起始select框位置
 
 void drawSelect() {
-    drawTransparentImage(mainSelect_x, 101, 25, 26, select_img, 0x0000); // 设置黑色替换成透明色
+    //drawTransparentImage(mainSelect_x, 101, 25, 26, select_img, 0x0000); // 设置黑色替换成透明色
+    MenuSpr.pushImage(mainSelect_x, 2, 25, 26, select_img, 16);  // 画select框
+    MenuSpr.pushSprite(0, 99, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
 }
 
 void clearSelect() {
-    TJpgDec.drawFsJpg(0, 99, "/menu.jpg");    // 用背景覆盖原位置
+    //TJpgDec.drawFsJpg(0, 99, "/menu.jpg");    // 用背景覆盖原位置
+    MenuSpr.fillSprite(TFT_BLACK);
+    MenuSpr.pushImage(0,0, 128, 29, menu, 16);  // Menu
+    //MenuSpr.pushSprite(0, 99, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
 }
 
 void moveSelect() {
@@ -365,7 +379,7 @@ const uint8_t CharPattern[] = { 1, 2, 3, 2 };
 void initCharSprite()
 {
   spr.setColorDepth(16);//1 bit(黑白）,16bit(RGB565)(默认），24/32 bit(RGB888/ARGB8888)
-  spr.createSprite(120, 78);          // hungerBar尺寸
+  spr.createSprite(120, 78);          // 背景尺寸
   spr.setSwapBytes(true); //对调RB,要不颜色会乱
 }
 
@@ -429,6 +443,8 @@ void setup() {
     //TJpgDec.setSwapBytes(true);//修正 RGB 颜色顺序
     
     TJpgDec.drawFsJpg(0, 0, "/background.jpg");
+    
+    initMenuSprite();
     drawSelect();// 初始绘制select
     drawHunger();
     initCharSprite();

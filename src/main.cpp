@@ -385,25 +385,25 @@ void initCharSprite()
 
 void CharStand(){
   if (Now - lastFlipChar >= 400) {
-    Char1_F_Stand_Idx = (Char1_F_Stand_Idx + 1) % 4;
-    lastFlipChar = Now;
-    spr.fillSprite(TFT_BLACK);
-    spr.pushImage(0, 0, 120, 78, CharBg, 16);
+    //spr.fillSprite(TFT_BLACK);
+    spr.pushImage(0, 0, 120, 78, CharBg);
     switch (CharPattern[Char1_F_Stand_Idx]){
       case 1:
-        spr.pushImage(42, 26, 36, 46, Char1_F_Stand1, 16);  // Char贴图
-        spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
+        spr.pushImage(42, 26, 36, 46, Char1_F_Stand1, 0x0000);  // Char贴图
         break;
       case 2:
-        spr.pushImage(42, 26, 36, 46, Char1_F_Stand2, 16);  // Char贴图
-        spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
+        spr.pushImage(42, 26, 36, 46, Char1_F_Stand2, 0x0000);  // Char贴图
         break;
       case 3:
-        spr.pushImage(42, 26, 36, 46, Char1_F_Stand3, 16);  // Char贴图
-        spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
+        spr.pushImage(42, 26, 36, 46, Char1_F_Stand3, 0x0000);  // Char贴图
         break;
     }
+    Char1_F_Stand_Idx = (Char1_F_Stand_Idx + 1) % 4;
+    lastFlipChar = Now;
+    spr.pushSprite(4, 21);  // 一次性推上屏幕,最后一个参数TFTblack是透明
   }
+  else
+  return;
 }
 
 

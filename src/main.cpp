@@ -37,6 +37,7 @@
 TFT_eSPI tft = TFT_eSPI();//显示图片用的
 TFT_eSprite  spr = TFT_eSprite(&tft);//用于动画去闪，用 Sprite 先在 RAM 里合成，再一次推屏
 TFT_eSprite MenuSpr = TFT_eSprite(&tft);
+uint32_t Now = millis();
 
 U8g2_for_TFT_eSPI u8g2;  // 声明中文显示的对象
 Preferences preferences;  // NVS 存储实例
@@ -90,7 +91,6 @@ void clearSelect() {
     //TJpgDec.drawFsJpg(0, 99, "/menu.jpg");    // 用背景覆盖原位置
     MenuSpr.fillSprite(TFT_BLACK);
     MenuSpr.pushImage(0,0, 128, 29, menu, 16);  // Menu
-    //MenuSpr.pushSprite(0, 99, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
 }
 
 void moveSelect() {
@@ -356,7 +356,7 @@ void drawHunger(){
 }
 
 void hungerBar(){
-  uint32_t Now = millis();
+  Now = millis();
   if (Now - lastHungerDown >= T_hungerDown)         // 到 10 s 了
   {
     if (hungerNum > 0){
@@ -384,24 +384,25 @@ void initCharSprite()
 }
 
 void CharStand(){
-  uint32_t Now = millis();
   if (Now - lastFlipChar >= 400) {
+    Char1_F_Stand_Idx = (Char1_F_Stand_Idx + 1) % 4;
+    lastFlipChar = Now;
     spr.fillSprite(TFT_BLACK);
     spr.pushImage(0, 0, 120, 78, CharBg, 16);
     switch (CharPattern[Char1_F_Stand_Idx]){
       case 1:
         spr.pushImage(42, 26, 36, 46, Char1_F_Stand1, 16);  // Char贴图
+        spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
         break;
       case 2:
         spr.pushImage(42, 26, 36, 46, Char1_F_Stand2, 16);  // Char贴图
+        spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
         break;
       case 3:
         spr.pushImage(42, 26, 36, 46, Char1_F_Stand3, 16);  // Char贴图
+        spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
         break;
     }
-    spr.pushSprite(4, 21, TFT_BLACK);  // 一次性推上屏幕,最后一个参数TFTblack是透明
-    Char1_F_Stand_Idx = (Char1_F_Stand_Idx + 1) % 4;
-    lastFlipChar = Now;
   }
 }
 
@@ -418,7 +419,7 @@ void BackMainMnue(){
   delay(300);
 }
 void setup() {
-    uint32_t Now = millis();//现在的时间
+    Now = millis();//现在的时间
     Serial.begin(9600);//初始化设置别碰
     tft.init();//这个也是
     tft.setRotation(0);//也是
@@ -461,7 +462,7 @@ void setup() {
 }
 
 void loop() {
-  uint32_t Now = millis();//现在的时间
+  Now = millis();//现在的时间
   mainselect();
   CharStand();
   hungerBar();
